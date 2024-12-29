@@ -1,0 +1,84 @@
+<html>
+    <head>
+        <title>
+            Auth workflow
+        </title>
+    </head>
+    <body>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"></script>
+        <script>
+            async function signup(){
+                const username = document.getElementById("signup-username").value;
+                const password = document.getElementById("signup-password").value;
+                await axios.post("http://localhost:4000/signup",{
+                    username: username,
+                    password: password
+                })
+                alert("Signup successful");
+            }
+            async function signin() {
+                const username = document.getElementById("signin-username").value;
+                const password = document.getElementById("signin-password").value;
+            
+                try {
+                    const response = await axios.post("http://localhost:4000/signin", {
+                        username: username,
+                        password: password
+                    });
+                    console.log("Token received from server:", response.data.token); // Debug log
+                    localStorage.setItem("token", response.data.token);
+                    alert("Signin successful");
+                } catch (error) {
+                    console.error("Signin error:", error);
+                    alert("Signin failed. Check logs for details.");
+                }
+            }
+            
+            async function getUserInformation() {
+                const token = localStorage.getItem("token");  // Retrieve the token from localStorage
+                if (!token) {
+                    alert("No token found. Please sign in first.");
+                    return;
+                }
+            
+                try {
+                    const response = await axios.get("http://localhost:4000/me", {
+                        headers: {
+                            Authorization: `Bearer ${token}` // Add the Bearer prefix to the token
+                        }
+                    });
+                    console.log(response.data);
+                } catch (error) {
+                    console.error("Error:", error.response?.data || error);
+                    alert("Failed to fetch user information.");
+                }
+            }
+            
+        
+        
+        
+        getUserInformation();
+        
+        </script>
+        <div>
+            Signup
+            <input id ="signup-username" type="text" placeholder="Enter username">
+            <input id ="signup-password" type="text" placeholder="Enter password">
+            <button id = "signup-but" onclick="signup()">Enter</button>
+        </div>
+        <div>
+            signin
+            <input id ="signin-username" type="text" placeholder="Enter username">
+            <input id ="signin-password" type="text" placeholder="Enter password">
+            <button id = "signin-but" onclick="signin()">Enter</button>
+        </div>
+        <div>
+            User info
+            <div>
+                <h3>User Info</h3>
+                <button onclick="getUserInformation()">GET ME</button>
+                <div id="information"></div>
+            </div>
+        </div>
+    </body>
+</html>
